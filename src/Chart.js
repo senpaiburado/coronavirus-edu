@@ -18,11 +18,11 @@ export default (props) => {
         })
     });
 
-    console.log(data);
+    console.log(props.isFetching);
 
     return (
-        <div className="chart-box" style={{opacity: data.length ? 1 : 0}}>
-            <LineChart
+        <div className="chart-box" style={{opacity: data.length || props.isFetching ? 1 : 0}}>
+            { props.isFetching && !data.length ? (<a>Loading...</a>)  : (<LineChart
                 width={600}
                 height={300}
                 data={data}
@@ -39,8 +39,8 @@ export default (props) => {
                 <Line type="monotone" dataKey="active" stroke="#8884d8" name="Хворих"/>
                 <Line type="monotone" dataKey="deaths" stroke="red" name="Померли" />
                 <Line type="monotone" dataKey="newCases" stroke="#82ca9d" name="Одужали" />
-            </LineChart>
-            <a class="close-btn" onClick={props.closeCliked}>Закрити</a>
+            </LineChart>) }
+            { !props.isFetching ? (<a class="close-btn" onClick={props.closeCliked}>Закрити</a>) : ("") }
         </div>
     );
 }

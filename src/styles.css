@@ -312,6 +312,7 @@ a:visited {
 }
 
 #select-country {
+  display: block;
   background-color: lightsteelblue;
   border: 1px solid black;
   width: 150px;

@@ -30,7 +30,8 @@ class App extends Component {
       dataTotal: [],
       center: [0, 0],
       zoom: 3,
-      countryHistoryData: []
+      countryHistoryData: [],
+      isFetchingCharts: false
     };
   }
 
@@ -76,8 +77,12 @@ class App extends Component {
     this.getData();
   }
 
-  countryChart(country) {
-    axios.get("https://coronavirus-monitor.p.rapidapi.com/coronavirus/cases_by_particular_country.php", {
+  countryChart(country, countryCode) {
+    if (countryCode && countryCode.country_code)
+      countryCode = countryCode.country_code;
+
+    this.setState({ isFetchingCharts: true }, () => {
+      axios.get("https://coronavirus-monitor.p.rapidapi.com/coronavirus/cases_by_particular_country.php", {
         "headers": {
           "x-rapidapi-host": "coronavirus-monitor.p.rapidapi.com",
           "x-rapidapi-key": "1f3a79bf36mshfa6df8cd380f68ap172d31jsnb28f04990b8d"
@@ -99,11 +104,23 @@ class App extends Component {
                 break;
             }
           }
-          this.setState({countryHistoryData: records.reverse()})
+          axios.get("https://covid19-api.org/api/prediction/" + countryCode).then(res => {
+
+
+            
+            this.setState({isFetchingCharts: false, countryHistoryData: records.reverse()})
+          }).catch(err => {
+            console.log(err);
+            this.setState({ isFetchingCharts: false })
+          })
+          
       })
       .catch(err => {
         console.log(err);
+        this.setState({ isFetchingCharts: false })
       });
+    })
+    
   }
   clearChart() {
     this.setState({ countryHistoryData: [] });
@@ -167,7 +184,7 @@ class App extends Component {
                   countryCode.find((el) => el.name === value.country_name).latlng
                 } icon={customMarker(cases_ratio, rgb)} onclick={() => {
                     console.log()
-                    this.countryChart(value.country_name)
+                    this.countryChart(value.country_name, countryCode.find((el) => el.name === value.country_name))
                 }}>
                   <Popup className={'popup'} style={{ backgroundColor: "black" }}>
                     <h1>{value.country_name}</h1>
@@ -181,7 +198,7 @@ class App extends Component {
                     <p><b>Per 1m: </b>{value.total_cases_per_1m_population}</p>
                   </Popup>
                 </Marker>) :
-                (console.log("Lat/Lng - Country not found : " + value.country_name))
+                (null)
             )
           })
           }
@@ -231,7 +248,7 @@ class App extends Component {
             </Link>
           </p>
         </div>
-          <Chart stat={this.state.countryHistoryData} closeCliked={() => {this.clearChart()}}/>
+          <Chart stat={this.state.countryHistoryData} isFetching={this.state.isFetchingCharts} closeCliked={() => {this.clearChart()}}/>
       </div >
     );
   }

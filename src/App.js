@@ -52,28 +52,16 @@ class App extends Component {
           <div>
           <div id="mainpage-full">
             <div id="world-img">
-              <Link id="select-country" to="/map">Обрати країну</Link>
+              
             </div>
           </div>
           <div className="info-box" id="total">
+          <Link id="select-country" to="/map">Відкрити карту</Link>
             <p><b>Загалом випадків </b><span style={{ color: '#A90000' }}>{this.state.dataTotal.total_cases}</span></p>
             <p><b>Нові випадки </b><span style={{ color: '#A90000' }}>{this.state.dataTotal.new_cases}</span></p>
             <p><b>Загалом одужали </b><span style={{ color: '#28a745' }}>{this.state.dataTotal.total_recovered}</span></p>
             <p><b>Загалом вмерли </b><span>{this.state.dataTotal.total_deaths}</span></p>
             <p><b>Нові померлі </b><span>{this.state.dataTotal.new_deaths}</span></p>
-            <div className="select">
-              <div id="select">
-                <select value={this.state.selected} name="select" onChange={this.handleChange}>
-                <select value={this.state.selected} name="select" onChange={this.handleChange}>
-                  <option value="cases">Випадки</option>
-                  <option value="active">Активні</option>
-                  <option value="recovered">Одужали</option>
-                  <option value="deaths">Померли</option>
-                </select>
-                </select>
-                <ChevronDown size={"18px"} />
-              </div>
-            </div>
           </div>
         </div >
           </Route>
