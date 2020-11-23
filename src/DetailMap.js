@@ -105,8 +105,24 @@ class App extends Component {
             }
           }
           axios.get("https://covid19-api.org/api/prediction/" + countryCode).then(res => {
+            res = res.data;
+            let lastItem = records[records.length - 1];
+            const newCoef = parseInt(lastItem.total_cases.replaceAll(',', '')) /  parseInt(lastItem.active_cases.replaceAll(',', ''));
+            const deathCoef =  parseInt(lastItem.total_cases.replaceAll(',', '')) /  parseInt(lastItem.total_deaths.replaceAll(',', '')) ;
+            const recoveredCoef =  parseInt(lastItem.total_cases.replaceAll(',', '')) / parseInt(lastItem.total_recovered.replaceAll(',', ''));
 
+            console.log(res);
+            // debugger
+            for (let i = 0; i < res.length; i++) {
+              records.unshift({
+                record_date: res[i].date,
+                active_cases: String(Math.floor(parseInt(res[i].cases) / newCoef)),
+                total_deaths: String(Math.floor(parseInt(res[i].cases) / deathCoef)),
+                total_recovered: String(Math.floor(parseInt(res[i].cases) / recoveredCoef)),
+              })
+            }
 
+            console.log(records)
             
             this.setState({isFetchingCharts: false, countryHistoryData: records.reverse()})
           }).catch(err => {
