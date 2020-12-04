@@ -327,7 +327,7 @@ a:visited {
 
 .chart-box {
   width: 680px;
-  height: 320px;
+  height: 370px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -341,6 +341,19 @@ a:visited {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.chart-box p {
+  align-self: flex-start;
+  text-align: center;
+  color: white;
+  width: 680px !important;
+  position: absolute;
+  margin-top: 7px;
+}
+
+.chart-box p div {
+  height: 20px;
 }
 
 .close-btn {

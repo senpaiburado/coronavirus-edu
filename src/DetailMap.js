@@ -31,7 +31,9 @@ class App extends Component {
       center: [0, 0],
       zoom: 3,
       countryHistoryData: [],
-      isFetchingCharts: false
+      isFetchingCharts: false,
+      currentCountry: "",
+      isPrediction: false
     };
   }
 
@@ -81,7 +83,7 @@ class App extends Component {
     if (countryCode && countryCode.country_code)
       countryCode = countryCode.country_code;
 
-    this.setState({ isFetchingCharts: true }, () => {
+    this.setState({ isFetchingCharts: true, currentCountry:  country}, () => {
       axios.get("https://coronavirus-monitor.p.rapidapi.com/coronavirus/cases_by_particular_country.php", {
         "headers": {
           "x-rapidapi-host": "coronavirus-monitor.p.rapidapi.com",
@@ -204,14 +206,14 @@ class App extends Component {
                 }}>
                   <Popup className={'popup'} style={{ backgroundColor: "black" }}>
                     <h1>{value.country_name}</h1>
-                    <p><b>Cases: </b> <span style={{ color: '#A90000' }}>{value.cases}</span></p>
-                    <p><b>New cases: </b> <span style={{ color: '#A90000' }}>{value.new_cases}</span></p>
-                    <p><b>Recovered: </b> <span style={{ color: '#28a745' }}>{value.total_recovered}</span></p>
-                    <p><b>Active: </b> <span style={{ color: '#ffc107' }}>{value.active_cases}</span></p>
-                    <p><b>Deaths: </b> {value.deaths}</p>
-                    <p><b>New deaths: </b> {value.new_deaths}</p>
-                    <p><b>Critical: </b> {value.serious_critical}</p>
-                    <p><b>Per 1m: </b>{value.total_cases_per_1m_population}</p>
+                    <p><b>Загалом випадків: </b> <span style={{ color: '#A90000' }}>{value.cases}</span></p>
+                    <p><b>Нові хворі: </b> <span style={{ color: '#A90000' }}>{value.new_cases}</span></p>
+                    <p><b>Одужали: </b> <span style={{ color: '#28a745' }}>{value.total_recovered}</span></p>
+                    <p><b>Хворі: </b> <span style={{ color: '#ffc107' }}>{value.active_cases}</span></p>
+                    <p><b>Померли: </b> {value.deaths}</p>
+                    <p><b>Нові померлі: </b> {value.new_deaths}</p>
+                    <p><b>Критичний стан: </b> {value.serious_critical}</p>
+                    <p><b>На 1 мільйон: </b>{value.total_cases_per_1m_population}</p>
                   </Popup>
                 </Marker>) :
                 (null)
@@ -264,7 +266,7 @@ class App extends Component {
             </Link>
           </p>
         </div>
-          <Chart stat={this.state.countryHistoryData} isFetching={this.state.isFetchingCharts} closeCliked={() => {this.clearChart()}}/>
+          <Chart isPred={this.state.isPrediction} country={this.state.currentCountry} stat={this.state.countryHistoryData} isFetching={this.state.isFetchingCharts} closeCliked={() => {this.clearChart()}}/>
       </div >
     );
   }
