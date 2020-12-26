@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import moment from "moment";
 import L from "leaflet";
 import Chart from './Chart';
+import Manager from "./StatsManager"
 
 // SVG to URL
 
@@ -23,6 +24,7 @@ const axios = require('axios');
 class App extends Component {
   constructor() {
     super();
+    this.manager = new Manager;
     this.handleChange = this.handleChange.bind(this);
     this.state = {
       selected: "cases",
@@ -33,7 +35,7 @@ class App extends Component {
       countryHistoryData: [],
       isFetchingCharts: false,
       currentCountry: "",
-      isPrediction: false
+      isPrediction: false,
     };
   }
 
@@ -75,7 +77,8 @@ class App extends Component {
       });
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.manager.initUser();
     this.getData();
   }
 
@@ -84,56 +87,9 @@ class App extends Component {
       countryCode = countryCode.country_code;
 
     this.setState({ isFetchingCharts: true, currentCountry:  country}, () => {
-      axios.get("https://coronavirus-monitor.p.rapidapi.com/coronavirus/cases_by_particular_country.php", {
-        "headers": {
-          "x-rapidapi-host": "coronavirus-monitor.p.rapidapi.com",
-          "x-rapidapi-key": "1f3a79bf36mshfa6df8cd380f68ap172d31jsnb28f04990b8d"
-        },
-        params: {
-          country: country
-        }
-      })
-      .then(response => {
-          let lastDate = moment().add(1, 'days');
-          let records = [];
-  
-          for (let i = 0; i < response.data.stat_by_country.length; i++) {
-            let record = response.data.stat_by_country[i];
-            if (moment(record.record_date).diff(lastDate, 'days') < 0) {
-              lastDate = moment(record.record_date);
-              records.push(record);
-              if (records.length >= 30)
-                break;
-            }
-          }
-          axios.get("https://covid19-api.org/api/prediction/" + countryCode).then(res => {
-            res = res.data;
-            let lastItem = records[records.length - 1];
-            const newCoef = parseInt(lastItem.total_cases.replaceAll(',', '')) /  parseInt(lastItem.active_cases.replaceAll(',', ''));
-            const deathCoef =  parseInt(lastItem.total_cases.replaceAll(',', '')) /  parseInt(lastItem.total_deaths.replaceAll(',', '')) ;
-            const recoveredCoef =  parseInt(lastItem.total_cases.replaceAll(',', '')) / parseInt(lastItem.total_recovered.replaceAll(',', ''));
-
-            console.log(res);
-            // debugger
-            for (let i = 0; i < res.length; i++) {
-              records.unshift({
-                record_date: res[i].date,
-                active_cases: String(Math.floor(parseInt(res[i].cases) / newCoef)),
-                total_deaths: String(Math.floor(parseInt(res[i].cases) / deathCoef)),
-                total_recovered: String(Math.floor(parseInt(res[i].cases) / recoveredCoef)),
-              })
-            }
-
-            console.log(records)
-            
-            this.setState({isFetchingCharts: false, countryHistoryData: records.reverse()})
-          }).catch(err => {
-            console.log(err);
-            this.setState({ isFetchingCharts: false })
-          })
-          
-      })
-      .catch(err => {
+      this.manager.getTodayCountry(country, countryCode).then(data => {
+        this.setState({ isFetchingCharts: false, countryHistoryData: data })
+      }).catch(err => {
         console.log(err);
         this.setState({ isFetchingCharts: false })
       });
