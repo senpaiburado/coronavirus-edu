@@ -34,10 +34,11 @@ class StatsManager {
         const predInfo = this.user.mongoClient("mongodb-atlas").db("stats").collection("prediction");
         
         let data = await this.getCountryData_API(countryName, countryCode);
-        let dataToSave = data.reverse().slice(0, 31);
+        let dataToSave = data.slice(14, data.length);
         let predData = data.slice(0, 14);
 
-        console.log(data)
+        console.log(dataToSave)
+        console.log(predData)
 
         for (let i = 0; i < dataToSave.length; i++) {
             let item = data[i];
@@ -57,7 +58,7 @@ class StatsManager {
             predInfo.insertOne({ predData, record_date: moment().format("DD/MM/YYYY"), country_code: countryCode  })
         }
 
-        return data;
+        return data.reverse();
     }
 
     async getTodayGlobal() {
